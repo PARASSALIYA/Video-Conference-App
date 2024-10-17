@@ -1,0 +1,25 @@
+{
+     "flutter": {
+          "platforms": {
+               "android": {
+                    "default": {
+                         "projectId": "video-conferencing-app-d0165",
+                         "appId": "1:818314108456:android:4dc2032ec0a775831f5f1d",
+                         "fileOutput": "android/app/google-services.json"
+                    }
+               },
+               "dart": {
+                    "lib/firebase_options.dart": {
+                         "projectId": "video-conferencing-app-d0165",
+                         "configurations": {
+                              "android": "1:818314108456:android:4dc2032ec0a775831f5f1d",
+                              "ios": "1:818314108456:ios:01e36b2f14b47d4c1f5f1d",
+                              "macos": "1:818314108456:ios:01e36b2f14b47d4c1f5f1d",
+                              "web": "1:818314108456:web:2e43a349160eb6d01f5f1d",
+                              "windows": "1:818314108456:web:d0d3b26d08502eb11f5f1d"
+                         }
+                    }
+               }
+          }
+     }
+}

@@ -1,23 +1,34 @@
 import 'package:flutter/material.dart';
-import 'home_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:video_conference_app/services/auth_services.dart';
+import 'package:video_conference_app/utils.dart';
 
 void main() {
-  runApp(const MyApp());
+  setup().then((_) {
+    runApp(ProviderScope(child: MyApp()));
+  });
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+Future<void> setup() async {
+  await setupFirebase();
+  await registerServices();
+}
 
-  // This widget is the root of your application.
+class MyApp extends ConsumerWidget {
+   MyApp({super.key});
+final AuthService _authService = GetIt.instance.get<AuthService>();
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        textTheme: GoogleFonts.poppinsTextTheme(),
         useMaterial3: true,
       ),
-      home: HomePage(),
+      home: _authService.checkLogin(),
     );
   }
 }
