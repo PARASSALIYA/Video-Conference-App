@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:video_conference_app/services/auth_services.dart';
-import 'package:video_conference_app/utils.dart';
+import 'package:video_conference_app/utils/utils.dart';
 
 void main() {
   setup().then((_) {
