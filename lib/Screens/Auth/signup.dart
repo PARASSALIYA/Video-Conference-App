@@ -19,14 +19,18 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   late AuthService _authService;
   final _formKey = GlobalKey<FormState>();
   final name = TextEditingController();
-  final email = TextEditingController();
-  final password = TextEditingController();
+  final emailOrNumber = TextEditingController();
+  final passwordOrOtp = TextEditingController();
+  String? _verificationId;
 
   bool isLoadingSignup = false;
+  bool isLoadingOtp = false;
   bool viewPassword = false;
   bool isLoadingGoogle = false;
+  bool isSelectedEmail = true;
+  bool isSelectedNumber = false;
 
-   @override
+  @override
   void initState() {
     _authService = GetIt.instance.get<AuthService>();
     super.initState();
@@ -35,8 +39,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   @override
   void dispose() {
     name.dispose();
-    email.dispose();
-    password.dispose();
+    emailOrNumber.dispose();
+    passwordOrOtp.dispose();
     super.dispose();
   }
 
@@ -76,16 +80,71 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            customTextField(name, "Full Name", personIcon,
-                isNameField: true, errorText: "Enter valid full name"),
             customTextField(
-                email, "Email or Phone Number", emailIcon,
-                isEmailField: true, errorText: "Enter valid email address"),
+              name,
+              text: "Full Name",
+              personIcon,
+              isNameField: true,
+              errorText: "Enter valid full name",
+            ),
             customTextField(
-              password,
-              "Password",
-              passwordIcon,
-              isPasswordField: !viewPassword,
+              emailOrNumber,
+              (isSelectedEmail) ? emailIcon : phoneIcon,
+              hintText: isSelectedEmail ? "Enter email" : "Enter phone number",
+              emailOrNumberWidget: emailOrNumberOption(
+                onClickEmail: (value) {
+                  setState(() {
+                    isSelectedEmail = value;
+                    isSelectedNumber = !isSelectedNumber;
+                  });
+                },
+                onClickNumber: (value) {
+                  setState(() {
+                    isSelectedNumber = value;
+                    isSelectedEmail = !isSelectedEmail;
+                  });
+                },
+                isSelectedEmail: isSelectedEmail,
+                isSelectedNumber: isSelectedNumber,
+              ),
+              isEmailField: isSelectedEmail,
+              isNumberField: isSelectedNumber,
+              errorText: (isSelectedEmail)
+                  ? "Enter valid email address"
+                  : (isSelectedNumber)
+                      ? "Enter valid phone number"
+                      : "Enter valid information!",
+              suffixIcon: (isSelectedNumber)
+                  ? sendOtpWidget("Send OTP", () async {
+                      setState(() {
+                        isLoadingOtp = true;
+                      });
+                      final result = await sendOtp();
+                      if (result) {
+                        snackbarToast(
+                          context: context,
+                          title: "OTP Sent !",
+                          icon: Icons.done,
+                        );
+                        setState(() {
+                          isLoadingOtp = false;
+                        });
+                      } else {
+                        setState(() {
+                          isLoadingOtp = false;
+                        });
+                      }
+                    }, isLoadingOtp)
+                  : null,
+            ),
+            customTextField(
+              passwordOrOtp,
+              text: (isSelectedEmail) ? "Password" : "OTP",
+              (isSelectedEmail) ? passwordIcon : numberDialpadIcon,
+              viewPassword: !viewPassword,
+              isPasswordField: !isSelectedNumber,
+              isOtpField: isSelectedNumber,
+              hintText: (isSelectedEmail) ? "Enter password" : "Enter OTP",
               suffixIcon: IconButton(
                   onPressed: () {
                     setState(() {
@@ -118,7 +177,21 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         isLoadingSignup = true;
       });
       try {
-        bool result = await _authService.signup(name.text, email.text, password.text, ref);
+        String smsCode = passwordOrOtp.text.trim();
+
+        bool result = (isSelectedEmail)
+            ? await _authService.signup(
+                name.text,
+                emailOrNumber.text,
+                passwordOrOtp.text,
+                ref,
+              )
+            : await _authService.verifyOTP(
+                _verificationId ?? "",
+                smsCode,
+                context,
+                name: name.text,
+              );
         if (result) {
           snackbarToast(
             context: context,
@@ -132,12 +205,22 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             isLoadingSignup = false;
           });
         } else {
+          snackbarToast(
+            context: context,
+            title: "Enter Valid Informaiton",
+            icon: Icons.error_outline_rounded,
+          );
           setState(() {
             isLoadingSignup = false;
           });
         }
       } catch (e) {
         print(e);
+        snackbarToast(
+          context: context,
+          title: "Unable to Create Account",
+          icon: Icons.error_outline_rounded,
+        );
         setState(() {
           isLoadingSignup = false;
         });
@@ -145,16 +228,52 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     }
   }
 
-  Widget gotoLogin(BuildContext context) {
-    return Row(
-      children: [
-        const Text("Already have an account?"),
-        TextButton(
-          onPressed: () {},
-          child: const Text("Login"),
-        ),
-      ],
-    );
+  Future<bool> sendOtp() async {
+    if (_formKey.currentState!.validate()) {
+      String phoneNumber = emailOrNumber.text.trim();
+      _authService.verifyPhoneNumber(
+        phoneNumber,
+        context,
+        (verificationId) {
+          print("OTP Sent: $verificationId");
+          setState(() {
+            _verificationId = verificationId;
+          });
+          return true;
+        },
+        (userCredential) async {
+          // successful login
+          print('User signed in: ${userCredential.user?.phoneNumber}');
+          await _authService
+              .createOrLoginUserAfterPhoneVerification(
+            userCredential,
+            name: name.text,
+            ref: ref,
+          )
+              .then((value) {
+            if (value) {
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                "/home",
+                (Route<dynamic> route) => false,
+              );
+              return true;
+            } else {
+              return false;
+            }
+          });
+        },
+        (error) {
+          // error
+          print('Error verifying phone number: $error');
+          return false;
+        },
+      );
+      return false;
+    } else {
+      print("validation error");
+      return false;
+    }
   }
 }
 

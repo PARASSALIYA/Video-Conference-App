@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:video_conference_app/Screens/Auth/contacts.dart';
-import 'package:video_conference_app/Screens/Auth/settings.dart';
-import 'package:video_conference_app/Screens/Home/home_screen.dart';
-import 'package:video_conference_app/Screens/Home/other_userdetails.dart';
+import 'package:video_conference_app/Screens/Home/messages/messages.dart';
+import 'package:video_conference_app/Screens/Home/mettings/mettings.dart';
 import 'package:video_conference_app/constants/assets_path.dart';
 import 'package:video_conference_app/constants/colors.dart';
+import 'package:video_conference_app/screens/auth/setting_screen.dart';
 
 class Bnb extends StatefulWidget {
   const Bnb({super.key});
@@ -16,14 +16,14 @@ class Bnb extends StatefulWidget {
 class HomePageState extends State<Bnb> {
   var currentIndex = 0;
   final List<Widget> _screens = [
-    const HomeScreen(),
-    const OtherUserdetails(),
+    const MeetingScreen(),
+    const MessagesScreen(),
     const Contacts(),
-    const Settings(),
+    const SettingScreen(),
   ];
 
   List<String> listOfIcons = [
-    homeIcon,
+    mettingsIcon2,
     massagesIcon,
     contactsIcon,
     settingsIcon,
