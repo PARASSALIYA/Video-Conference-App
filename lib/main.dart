@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:video_conference_app/Test/Home.dart';
 import 'package:video_conference_app/services/auth_services.dart';
 import 'package:video_conference_app/utils/utils.dart';
 
@@ -17,8 +18,8 @@ Future<void> setup() async {
 }
 
 class MyApp extends ConsumerWidget {
-   MyApp({super.key});
-final AuthService _authService = GetIt.instance.get<AuthService>();
+  MyApp({super.key});
+  final AuthService _authService = GetIt.instance.get<AuthService>();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,7 +29,8 @@ final AuthService _authService = GetIt.instance.get<AuthService>();
         textTheme: GoogleFonts.poppinsTextTheme(),
         useMaterial3: true,
       ),
-      home: _authService.checkLogin(),
+      home: MeetingScreen(),
+      // home: _authService.checkLogin(),
     );
   }
 }
