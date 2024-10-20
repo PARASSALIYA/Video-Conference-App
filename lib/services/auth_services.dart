@@ -6,6 +6,7 @@ import 'package:video_conference_app/Models/user.dart';
 import 'package:video_conference_app/Models/user_provider.dart';
 import 'package:video_conference_app/Screens/Auth/signup.dart';
 import 'package:video_conference_app/Screens/Home/bnb.dart';
+import 'package:video_conference_app/Widgets/loader.dart';
 import 'package:video_conference_app/services/database_services.dart';
 
 class AuthService {
@@ -21,18 +22,19 @@ class AuthService {
         stream: _firebaseAuth.authStateChanges(),
         builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator.adaptive(),
-              ),
-            );
+            return const Loader();
           }
           if (snapshot.hasData) {
             print("User is signed in: to home screen");
             user = snapshot.data;
             ref
                 .read(userDataNotifierProvider.notifier)
-                .fetchCurrentUserData(user?.uid);
+                .fetchCurrentUserData(user?.uid)
+                .then((value) {
+              ref
+                  .read(userDataNotifierProvider.notifier)
+                  .updateCurrentUserData(isOnline: true);
+            });
             print('User Firebase: ${user?.email}');
 
             return const Bnb();
@@ -54,7 +56,13 @@ class AuthService {
         user = credential.user;
         ref
             .read(userDataNotifierProvider.notifier)
-            .fetchCurrentUserData(user?.uid);
+            .fetchCurrentUserData(user?.uid)
+            .then((value) {
+          ref.read(userDataNotifierProvider.notifier).updateCurrentUserData(
+                isOnline: true,
+              );
+        });
+
         return true;
       }
     } catch (e) {
@@ -74,7 +82,12 @@ class AuthService {
       if (credential.user != null) {
         user = credential.user;
         createUserProfile(
-            userProfile: UserData(uid: user?.uid, name: name, email: email));
+            userProfile: UserData(
+          uid: user?.uid,
+          name: name,
+          email: email,
+          isOnline: true,
+        ));
         ref
             .read(userDataNotifierProvider.notifier)
             .fetchCurrentUserData(user?.uid);
@@ -84,6 +97,113 @@ class AuthService {
       }
     } catch (e) {
       print("Error: $e");
+      return false;
+    }
+  }
+
+  Future<void> verifyPhoneNumber(
+    String phoneNumber,
+    BuildContext context,
+    Function(String) onCodeSent,
+    Function(UserCredential) onVerificationCompleted,
+    Function(FirebaseAuthException) onVerificationFailed,
+  ) async {
+    try {
+      print("verifying phone number $phoneNumber");
+      await _firebaseAuth.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
+        timeout: const Duration(seconds: 60),
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          // Automatically signs in the user if verification is successful
+          // final UserCredential userCredential =
+          await _firebaseAuth.signInWithCredential(credential).then((value) {
+            onVerificationCompleted(value);
+          });
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          onVerificationFailed(e);
+          if (e.code == 'invalid-phone-number') {
+            print('The provided phone number is not valid.');
+          }
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          // You need to ask the user to input the OTP here.
+          onCodeSent(verificationId);
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          print("Code auto-retrieval timeout.");
+        },
+      );
+    } catch (e) {
+      print("error verifying phoneNumber: $e");
+    }
+  }
+
+  Future<bool> verifyOTP(
+      String verificationId, String smsCode, BuildContext context,
+      {String? name = ""}) async {
+    try {
+      // Create a PhoneAuthCredential with the code
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+          verificationId: verificationId, smsCode: smsCode);
+
+      // Sign in the user with the credential
+      UserCredential userCredential =
+          await _firebaseAuth.signInWithCredential(credential);
+
+      print("Phone number successfully verified");
+      return createOrLoginUserAfterPhoneVerification(userCredential,
+          name: name);
+      // Handle successful sign-in here (e.g., navigate to the home page)
+    } catch (e) {
+      print("Failed to verify OTP: $e");
+      return false;
+    }
+  }
+
+  Future<bool> createOrLoginUserAfterPhoneVerification(
+      UserCredential userCredential,
+      {String? name = "",
+      WidgetRef? ref}) async {
+    try {
+      final user = userCredential.user;
+
+      if (user != null) {
+        final uid = user.uid;
+        final phoneNumber = user.phoneNumber;
+
+        bool userExists = await checkExistingUser(uid);
+
+        if (userExists) {
+          print("User already exists with UID: $uid");
+          ref
+              ?.read(userDataNotifierProvider.notifier)
+              .fetchCurrentUserData(user.uid)
+              .then((value) {
+            ref
+                .read(userDataNotifierProvider.notifier)
+                .updateCurrentUserData(isOnline: true);
+          });
+          return true;
+        } else {
+          UserData newUser = UserData(
+            uid: uid,
+            name: name,
+            phoneNumber: phoneNumber,
+            isOnline: true,
+          );
+
+          await createUserProfile(userProfile: newUser);
+
+          print("New user created with UID: $uid");
+          return true;
+        }
+      } else {
+        print("No user found in the UserCredential");
+        return false;
+      }
+    } catch (e) {
+      print("Error in createOrLoginUserAfterPhoneVerification: $e");
       return false;
     }
   }
@@ -160,7 +280,7 @@ class AuthService {
     return false;
   }
 
-  void logoutDilog(BuildContext context) {
+  void logoutDilog(BuildContext context, WidgetRef ref) {
     print("logoutDilog function called");
     showDialog(
         context: context,
@@ -172,11 +292,12 @@ class AuthService {
               ElevatedButton(
                   onPressed: () {
                     logout();
-                    Navigator.pushAndRemoveUntil(
+                    ref
+                        .read(userDataNotifierProvider.notifier)
+                        .updateCurrentUserData(isOnline: false);
+                    Navigator.pushNamedAndRemoveUntil(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => const SignupScreen(),
-                      ),
+                      "/signup",
                       (Route<dynamic> route) =>
                           false, // This removes all the previous routes
                     );

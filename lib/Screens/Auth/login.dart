@@ -5,6 +5,7 @@ import 'package:video_conference_app/Screens/Auth/signup.dart';
 import 'package:video_conference_app/Screens/Home/bnb.dart';
 import 'package:video_conference_app/Widgets/auth_widgets.dart';
 import 'package:video_conference_app/Widgets/snackbar.dart';
+import 'package:video_conference_app/constants/assets_path.dart';
 import 'package:video_conference_app/services/auth_services.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -17,12 +18,16 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   late AuthService _authService;
   final _formKey = GlobalKey<FormState>();
-  final email = TextEditingController();
-  final password = TextEditingController();
+  final emailOrNumber = TextEditingController();
+  final passwordOrOtp = TextEditingController();
+  String? _verificationId;
 
   bool isLoadingLogin = false;
   bool viewPassword = false;
   bool isLoadingGoogle = false;
+  bool isSelectedEmail = true;
+  bool isSelectedNumber = false;
+  bool isLoadingOtp = false;
 
   @override
   void initState() {
@@ -32,8 +37,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   void dispose() {
-    email.dispose();
-    password.dispose();
+    emailOrNumber.dispose();
+    passwordOrOtp.dispose();
     super.dispose();
   }
 
@@ -74,13 +79,67 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             customTextField(
-                email, "Email or Phone Number", "assets/icons/mail.png",
-                isEmailField: true, errorText: "Enter valid email address"),
+              emailOrNumber,
+              (isSelectedEmail) ? emailIcon : phoneIcon,
+              hintText: isSelectedEmail ? "Enter email" : "Enter phone number",
+              emailOrNumberWidget: emailOrNumberOption(
+                onClickEmail: (value) {
+                  setState(() {
+                    isSelectedEmail = value;
+                    isSelectedNumber = !isSelectedNumber;
+                  });
+                },
+                onClickNumber: (value) {
+                  setState(() {
+                    isSelectedNumber = value;
+                    isSelectedEmail = !isSelectedEmail;
+                  });
+                },
+                isSelectedEmail: isSelectedEmail,
+                isSelectedNumber: isSelectedNumber,
+              ),
+              isEmailField: isSelectedEmail,
+              isNumberField: isSelectedNumber,
+              errorText: (isSelectedEmail)
+                  ? "Enter valid email address"
+                  : (isSelectedNumber)
+                      ? "Enter valid phone number (ex. +91 9876543212)"
+                      : "Enter valid information!",
+              suffixIcon: (isSelectedNumber)
+                  ? sendOtpWidget("Send OTP", () async {
+                      setState(() {
+                        isLoadingOtp = true;
+                      });
+                      final result = await sendOtp();
+                      if (result) {
+                        snackbarToast(
+                          context: context,
+                          title: "OTP Sent !",
+                          icon: Icons.done,
+                        );
+                        setState(() {
+                          isLoadingOtp = false;
+                        });
+                      } else {
+                        snackbarToast(
+                          context: context,
+                          title: "Error in sending OTP",
+                          icon: Icons.error_outline_rounded,
+                        );
+                        setState(() {
+                          isLoadingOtp = false;
+                        });
+                      }
+                    }, isLoadingOtp)
+                  : null,
+            ),
             customTextField(
-              password,
-              "Password",
-              "assets/icons/password.png",
+              passwordOrOtp,
+              text: (isSelectedEmail) ? "Password" : "OTP",
+              (isSelectedEmail) ? passwordIcon : numberDialpadIcon,
               isPasswordField: !viewPassword,
+              isOtpField: isSelectedNumber,
+              hintText: (isSelectedEmail) ? "Enter password" : "Enter OTP",
               suffixIcon: IconButton(
                   onPressed: () {
                     setState(() {
@@ -113,31 +172,92 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         isLoadingLogin = true;
       });
       try {
-        await _authService.login(email.text, password.text, ref).then((value) {
-          if (value) {
-            snackbarToast(
-              context: context,
-              title: "Login Sucessfully",
-              icon: Icons.login_outlined,
-            );
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => const Bnb()),
-            );
-            setState(() {
-              isLoadingLogin = false;
-            });
-          } else {
-            setState(() {
-              isLoadingLogin = false;
-            });
-          }
-        });
+        String smsCode = passwordOrOtp.text.trim();
+        final result = (isSelectedEmail)
+            ? await _authService.login(
+                emailOrNumber.text, passwordOrOtp.text, ref)
+            : await _authService.verifyOTP(
+                _verificationId ?? "",
+                smsCode,
+                context,
+              );
+        if (result) {
+          snackbarToast(
+            context: context,
+            title: "Login Sucessfully",
+            icon: Icons.login_outlined,
+          );
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const Bnb()),
+          );
+          setState(() {
+            isLoadingLogin = false;
+          });
+        } else {
+          snackbarToast(
+            context: context,
+            title: "Enter Valid Informaiton",
+            icon: Icons.error_outline_rounded,
+          );
+          setState(() {
+            isLoadingLogin = false;
+          });
+        }
       } catch (e) {
+        snackbarToast(
+          context: context,
+          title: "Enter Valid Informaiton",
+          icon: Icons.error_outline_rounded,
+        );
         print(e);
         setState(() {
           isLoadingLogin = false;
         });
       }
+    }
+  }
+
+  Future<bool> sendOtp() async {
+    if (_formKey.currentState!.validate()) {
+      String phoneNumber = emailOrNumber.text.trim();
+      _authService.verifyPhoneNumber(
+        phoneNumber,
+        context,
+        (verificationId) {
+          setState(() {
+            _verificationId = verificationId;
+          });
+        },
+        (userCredential) async {
+          // successful login
+          print('User signed in: ${userCredential.user?.phoneNumber}');
+          await _authService
+              .createOrLoginUserAfterPhoneVerification(
+            userCredential,
+            ref: ref,
+          )
+              .then((value) {
+            if (value) {
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                "/home",
+                (Route<dynamic> route) => false,
+              );
+              return true;
+            } else {
+              return false;
+            }
+          });
+        },
+        (error) {
+          // error
+          print('Error verifying phone number: $error');
+          return false;
+        },
+      );
+      return false;
+    } else {
+      return false;
     }
   }
 }

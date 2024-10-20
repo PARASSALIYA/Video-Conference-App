@@ -23,7 +23,7 @@ class UserDataNotifier extends _$UserDataNotifier {
 
    Future<void> fetchCurrentUserData(String? uid) async {
     try {
-      final docSnapshot = await userCollection.doc(uid).get();
+      final docSnapshot = await userCollection.doc(uid ?? "").get();
 
       if (docSnapshot.exists) {
         state = docSnapshot.data()!;
@@ -33,7 +33,7 @@ class UserDataNotifier extends _$UserDataNotifier {
         await FirebaseAuth.instance.signOut();
       }
     } catch (e) {
-      print("Failed to fetch user data: $e");
+      print("Failed to fetch current user data: $e");
     }
   }
 

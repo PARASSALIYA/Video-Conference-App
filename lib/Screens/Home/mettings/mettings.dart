@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:video_conference_app/Test/history_screen.dart';
-import 'package:video_conference_app/Test/personal_screen.dart';
-import 'package:video_conference_app/Test/recurring_screen.dart';
+import 'package:video_conference_app/Screens/Home/mettings/history_screen.dart';
+import 'package:video_conference_app/Screens/Home/mettings/personal_screen.dart';
+import 'package:video_conference_app/Screens/Home/mettings/recurring_screen.dart';
 
 class MeetingScreen extends StatefulWidget {
+  const MeetingScreen({super.key});
+
   @override
-  _MeetingScreenState createState() => _MeetingScreenState();
+  MeetingScreenState createState() => MeetingScreenState();
 }
 
-class _MeetingScreenState extends State<MeetingScreen>
+class MeetingScreenState extends State<MeetingScreen>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
 
@@ -24,8 +26,7 @@ class _MeetingScreenState extends State<MeetingScreen>
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title:
-            const Text("Meetings", style: const TextStyle(color: Colors.black)),
+        title: const Text("Meetings", style: TextStyle(color: Colors.black)),
         centerTitle: true,
         bottom: TabBar(
           controller: _tabController,
@@ -43,26 +44,10 @@ class _MeetingScreenState extends State<MeetingScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          MeetingTab(),
+          const MeetingTab(),
           HistoryScreen(),
           RecurringScreen(),
           PersonalScreen(),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: 0,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.video_call), label: "Meeting"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.account_balance_wallet), label: "Wallet"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.contacts), label: "Contacts"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: "Settings"),
         ],
       ),
     );
@@ -70,10 +55,12 @@ class _MeetingScreenState extends State<MeetingScreen>
 }
 
 class MeetingTab extends StatelessWidget {
+  const MeetingTab({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ListView(
-      children: [
+      children: const [
         MeetingCard(
             time: "12:00",
             host: "Kim",
@@ -96,8 +83,11 @@ class MeetingCard extends StatelessWidget {
   final String host;
   final String description;
 
-  MeetingCard(
-      {required this.time, required this.host, required this.description});
+  const MeetingCard(
+      {super.key,
+      required this.time,
+      required this.host,
+      required this.description});
 
   @override
   Widget build(BuildContext context) {
