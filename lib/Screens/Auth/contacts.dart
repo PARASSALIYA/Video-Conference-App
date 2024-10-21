@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:video_conference_app/Widgets/appbar.dart';
 
 class Contacts extends StatefulWidget {
   const Contacts({super.key});
@@ -11,7 +12,7 @@ class _ContactsState extends State<Contacts> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: homeAppBar("Contacts"),
       body: const Center(
         child: Text("Contacts Screen"),
       ),

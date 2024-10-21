@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:video_conference_app/Models/user_provider.dart';
+import 'package:video_conference_app/Widgets/appbar.dart';
 import 'package:video_conference_app/Widgets/auth_widgets.dart';
 import 'package:video_conference_app/constants/const_widgets.dart';
 import 'package:video_conference_app/services/auth_services.dart';
@@ -28,9 +29,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Settings"),
-      ),
+      appBar: homeAppBar("Settings"),
       body: _body(),
     );
   }

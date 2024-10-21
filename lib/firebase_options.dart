@@ -64,6 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '818314108456',
     projectId: 'video-conferencing-app-d0165',
     storageBucket: 'video-conferencing-app-d0165.appspot.com',
+    androidClientId: '818314108456-3cos071tcpqhlophnko5a3ap9brqk18j.apps.googleusercontent.com',
     iosClientId: '818314108456-ems6bg0vtsjp7kpu3h5lghmqf39e2jd3.apps.googleusercontent.com',
     iosBundleId: 'com.example.videoConferenceApp',
   );
@@ -74,6 +75,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '818314108456',
     projectId: 'video-conferencing-app-d0165',
     storageBucket: 'video-conferencing-app-d0165.appspot.com',
+    androidClientId: '818314108456-3cos071tcpqhlophnko5a3ap9brqk18j.apps.googleusercontent.com',
     iosClientId: '818314108456-ems6bg0vtsjp7kpu3h5lghmqf39e2jd3.apps.googleusercontent.com',
     iosBundleId: 'com.example.videoConferenceApp',
   );

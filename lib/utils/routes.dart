@@ -5,7 +5,7 @@ import 'package:video_conference_app/Screens/Auth/user_profile.dart';
 import 'package:video_conference_app/Screens/Home/bnb.dart';
 import 'package:video_conference_app/Screens/Home/mettings/mettings.dart';
 import 'package:video_conference_app/users/screens/addgroup/addgroup_screen.dart';
-import 'package:video_conference_app/users/screens/setting/setting_screen.dart';
+import 'package:video_conference_app/Screens/Auth/setting_screen.dart';
 import 'package:video_conference_app/users/screens/splash/splash_screen.dart';
 
 class Routes {

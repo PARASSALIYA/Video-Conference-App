@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:video_conference_app/Widgets/appbar.dart';
 
 class MessagesScreen extends StatefulWidget {
   const MessagesScreen({super.key});
@@ -11,7 +12,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: homeAppBar("Messages"),
       body: const Center(
         child: Text("Messages Screen"),
       ),
