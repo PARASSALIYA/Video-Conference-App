@@ -6,9 +6,9 @@ class UserData {
   bool? isOnline;
   String? phoneNumber;
   int? noOfGroups;
-  Set<String>? groupIds;
+  List<String>? groupIds;
   int? noOfChats;
-  Set<String>? chatIds;
+  List<String>? chatIds;
   DateTime? dateOfBirth;
   String? gender;
 
@@ -20,9 +20,9 @@ class UserData {
     this.isOnline = false,
     this.phoneNumber = "",
     this.noOfGroups = 0,
-    this.groupIds = const {},
+    this.groupIds = const [],
     this.noOfChats = 0,
-    this.chatIds = const {},
+    this.chatIds = const [],
     this.dateOfBirth,
     this.gender = "",
   });
@@ -34,12 +34,16 @@ class UserData {
       pfpURL: json['pfpURL'] as String? ?? "",
       email: json['email'] as String,
       isOnline: json['isOnline'] as bool? ?? false,
-      phoneNumber: json['phoneNumber'] as String,
+      phoneNumber: json['phoneNumber'] as String? ?? "",
       noOfGroups: json['noOfGroups'] as int? ?? 0,
-      groupIds: Set<String>.from(json['groupIds'] ?? {}),
+      // Fix here: Convert List<dynamic> to Set<String>
+      groupIds: List<String>.from(json['groupIds'] ?? []),
       noOfChats: json['noOfChats'] as int? ?? 0,
-      chatIds: Set<String>.from(json['chatIds'] ?? {}),
-      dateOfBirth: json['dateOfBirth'] != null ? DateTime.parse(json['dateOfBirth']) : null,
+      // Fix here: Convert List<dynamic> to Set<String>
+      chatIds:List<String>.from(json['chatIds'] ?? []),
+      dateOfBirth: json['dateOfBirth'] != null
+          ? DateTime.parse(json['dateOfBirth'])
+          : null,
       gender: json['gender'] as String? ?? "",
     );
   }

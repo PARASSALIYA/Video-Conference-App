@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:video_conference_app/Models/user_provider.dart';
 import 'package:video_conference_app/Screens/Home/mettings/history_screen.dart';
 import 'package:video_conference_app/Screens/Home/mettings/personal_screen.dart';
 import 'package:video_conference_app/Screens/Home/mettings/recurring_screen.dart';
 
-class MeetingScreen extends StatefulWidget {
+class MeetingScreen extends ConsumerStatefulWidget {
   const MeetingScreen({super.key});
 
   @override
   MeetingScreenState createState() => MeetingScreenState();
 }
 
-class MeetingScreenState extends State<MeetingScreen>
+class MeetingScreenState extends ConsumerState<MeetingScreen>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
 

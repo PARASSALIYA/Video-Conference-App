@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
-import 'package:video_conference_app/constants/colors.dart';
+import 'package:video_conference_app/Models/user_provider.dart';
+import 'package:video_conference_app/Widgets/auth_widgets.dart';
+import 'package:video_conference_app/constants/const_widgets.dart';
 import 'package:video_conference_app/services/auth_services.dart';
 
 class SettingScreen extends ConsumerStatefulWidget {
@@ -17,6 +19,9 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
   @override
   void initState() {
     _authService = GetIt.instance.get<AuthService>();
+    ref
+        .read(userDataNotifierProvider.notifier)
+        .fetchCurrentUserData(_authService.user?.uid);
     super.initState();
   }
 
@@ -31,27 +36,27 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
   }
 
   Widget _body() {
+    final userData = ref.watch(userDataNotifierProvider);
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
           _customListtile(
-              iconOrImage: const Icon(Icons.key),
-              title: "Your Account",
-              onTap: () {},
-              subTitle: "Privacy, security, change number"),
-          const SizedBox(
-            height: 10,
-          ),
-          _customListtile(
-            iconOrImage: const Icon(Icons.chat),
-            title: "Chat",
-            onTap: () {},
-            subTitle: "Chat history,theme,wallpapers",
+            iconOrImage: userImageCircle(userData, 30),
+            title: userData.name!.isEmpty
+                ? "Your Account"
+                : userData.name ?? "Your Account",
+            onTap: () {
+              Navigator.of(context).pushNamed("/userProfile");
+            },
           ),
           const SizedBox(
             height: 10,
           ),
+          const SizedBox(
+            height: 10,
+          ),
+          const Divider(),
           _customListtile(
             iconOrImage: const Icon(Icons.notifications),
             title: "Notifications",

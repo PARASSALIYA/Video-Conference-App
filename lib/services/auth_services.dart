@@ -25,17 +25,20 @@ class AuthService {
             return const Loader();
           }
           if (snapshot.hasData) {
-            print("User is signed in: to home screen");
             user = snapshot.data;
-            ref
-                .read(userDataNotifierProvider.notifier)
-                .fetchCurrentUserData(user?.uid)
-                .then((value) {
+            final uid = user?.uid;
+
+            if (uid != null && uid.isNotEmpty) {
               ref
                   .read(userDataNotifierProvider.notifier)
-                  .updateCurrentUserData(isOnline: true);
-            });
+                  .fetchCurrentUserData(uid);
+            } else {
+              print("Error: UID is null or empty: retuning to signup screen");
+              return const SignupScreen();
+            }
+
             print('User Firebase: ${user?.email}');
+            print("User is signed in: to home screen : ${user?.displayName}");
 
             return const Bnb();
           } else {
@@ -58,9 +61,9 @@ class AuthService {
             .read(userDataNotifierProvider.notifier)
             .fetchCurrentUserData(user?.uid)
             .then((value) {
-          ref.read(userDataNotifierProvider.notifier).updateCurrentUserData(
-                isOnline: true,
-              );
+          ref
+              .read(userDataNotifierProvider.notifier)
+              .updateCurrentUserData(isOnline: true);
         });
 
         return true;

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:video_conference_app/Models/user.dart';
+
 part 'user_provider.g.dart';
 
 //	dart run build_runner watch -d
@@ -21,19 +22,33 @@ class UserDataNotifier extends _$UserDataNotifier {
     return UserData(uid: "", name: "");
   }
 
-   Future<void> fetchCurrentUserData(String? uid) async {
+  Future<bool> fetchCurrentUserData(String? uid) async {
+    if (uid == null || uid.isEmpty) {
+      print("Error: UID is null or empty");
+      return false; // Exit the function early if the UID is invalid
+    }
+
     try {
-      final docSnapshot = await userCollection.doc(uid ?? "").get();
+      print("checking document of: $uid");
+      final docSnapshot = await userCollection.doc(uid).get();
+      print("user document: ${docSnapshot.data()?.uid}");
 
       if (docSnapshot.exists) {
         state = docSnapshot.data()!;
         print("User with uid $uid found.");
+        print("email: ${state.email}");
+        print("phoneNum: ${state.phoneNumber}");
+        print("name: ${state.name}");
+        print("image: ${state.pfpURL}");
+        return true;
       } else {
         print("User with uid $uid not found.");
         await FirebaseAuth.instance.signOut();
+        return false;
       }
     } catch (e) {
       print("Failed to fetch current user data: $e");
+      return false;
     }
   }
 
@@ -44,29 +59,28 @@ class UserDataNotifier extends _$UserDataNotifier {
     String? phoneNumber,
     String? profilePicUrl,
     int? noOfGroups,
-    Set<String>? groupIds,
+    List<String>? groupIds,
     int? noOfChats,
-    Set<String>? chatIds,
+    List<String>? chatIds,
     DateTime? dateOfBirth,
     String? gender,
   }) async {
-    final userRef = userCollection.doc(state.uid);
-
-    Map<String, dynamic> updatedData = {
-      'name': name ?? state.name,
-      'email': email ?? state.email,
-      'isOnline': isOnline ?? state.isOnline,
-      'phoneNumber': phoneNumber ?? state.phoneNumber,
-      'pfpURL': profilePicUrl ?? state.pfpURL,
-      'noOfGroups': noOfGroups ?? state.noOfGroups,
-      'groupIds': groupIds ?? state.groupIds,
-      'noOfChats': noOfChats ?? state.noOfChats,
-      'chatIds': chatIds ?? state.chatIds,
-      'dateOfBirth': dateOfBirth ?? state.chatIds,
-      'gender': gender ?? state.gender,
-    };
-
     try {
+      final userRef = userCollection.doc(state.uid);
+
+      Map<String, dynamic> updatedData = {
+        'name': name ?? state.name,
+        'email': email ?? state.email,
+        'isOnline': isOnline ?? state.isOnline,
+        'phoneNumber': phoneNumber ?? state.phoneNumber,
+        'pfpURL': profilePicUrl ?? state.pfpURL,
+        'noOfGroups': noOfGroups ?? state.noOfGroups,
+        'groupIds': groupIds ?? state.groupIds,
+        'noOfChats': noOfChats ?? state.noOfChats,
+        'chatIds': chatIds ?? state.chatIds,
+        'dateOfBirth': dateOfBirth ?? state.chatIds,
+        'gender': gender ?? state.gender,
+      };
       await userRef.update(updatedData);
       state = UserData(
         uid: state.uid,
@@ -87,5 +101,4 @@ class UserDataNotifier extends _$UserDataNotifier {
       print('Error updating document: $e');
     }
   }
-
 }

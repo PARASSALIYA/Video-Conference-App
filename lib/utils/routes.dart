@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:video_conference_app/Screens/Auth/login.dart';
 import 'package:video_conference_app/Screens/Auth/signup.dart';
+import 'package:video_conference_app/Screens/Auth/user_profile.dart';
 import 'package:video_conference_app/Screens/Home/bnb.dart';
 import 'package:video_conference_app/Screens/Home/mettings/mettings.dart';
 import 'package:video_conference_app/users/screens/addgroup/addgroup_screen.dart';
@@ -16,5 +17,6 @@ class Routes {
     '/addgroup': (context) => const AddgroupScreen(),
     '/setting': (context) => const SettingScreen(),
     '/meeting': (context) => const MeetingScreen(),
+    '/userProfile': (context) => const UserProfile(),
   };
 }
