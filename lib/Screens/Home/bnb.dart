@@ -3,7 +3,7 @@ import 'package:video_conference_app/Screens/Auth/contacts.dart';
 import 'package:video_conference_app/Screens/Home/messages/messages.dart';
 import 'package:video_conference_app/Screens/Home/mettings/mettings.dart';
 import 'package:video_conference_app/constants/assets_path.dart';
-import 'package:video_conference_app/constants/colors.dart';
+import 'package:video_conference_app/constants/const_widgets.dart';
 import 'package:video_conference_app/screens/auth/setting_screen.dart';
 
 class Bnb extends StatefulWidget {

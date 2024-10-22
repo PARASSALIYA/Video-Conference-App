@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_conference_app/Screens/Home/mettings/history_screen.dart';
 import 'package:video_conference_app/Screens/Home/mettings/personal_screen.dart';
 import 'package:video_conference_app/Screens/Home/mettings/recurring_screen.dart';
+import 'package:video_conference_app/Widgets/appbar.dart';
+import 'package:video_conference_app/constants/const_widgets.dart';
 
-class MeetingScreen extends StatefulWidget {
+class MeetingScreen extends ConsumerStatefulWidget {
   const MeetingScreen({super.key});
 
   @override
   MeetingScreenState createState() => MeetingScreenState();
 }
 
-class MeetingScreenState extends State<MeetingScreen>
+class MeetingScreenState extends ConsumerState<MeetingScreen>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
 
@@ -23,16 +26,14 @@ class MeetingScreenState extends State<MeetingScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text("Meetings", style: TextStyle(color: Colors.black)),
-        centerTitle: true,
+      appBar: homeAppBar(
+        "Meetings",
         bottom: TabBar(
+          splashBorderRadius: BorderRadius.circular(20),
           controller: _tabController,
-          indicatorColor: Colors.blue,
-          labelColor: Colors.blue,
-          unselectedLabelColor: Colors.grey,
+          indicatorColor: secondaryColor,
+          labelColor: secondaryColor,
+          unselectedLabelColor: Colors.white,
           tabs: const [
             Tab(icon: Icon(Icons.video_call), text: "Meeting"),
             Tab(icon: Icon(Icons.history), text: "History"),

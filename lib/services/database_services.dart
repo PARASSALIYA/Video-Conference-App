@@ -1,5 +1,13 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as path;
 import 'package:video_conference_app/Models/user.dart';
+
+final ImagePicker _picker = ImagePicker();
+final FirebaseStorage firebaseStorage = FirebaseStorage.instance;
 
 CollectionReference<UserData> userCollection =
     FirebaseFirestore.instance.collection('users').withConverter<UserData>(
@@ -41,3 +49,35 @@ Future<UserData> getUserDetailsFromUid(String uid) async {
   }
 }
 
+Future<File?> getImageFromGallery() async {
+  final XFile? file = await _picker.pickImage(source: ImageSource.gallery);
+  if (file != null) {
+    return File(file.path);
+  }
+  return null;
+}
+
+Future<String?> uploadUserPfpic(
+    {required File file, required String uid}) async {
+  try {
+    print("uploading profile pic");
+    Reference fileReference = firebaseStorage
+        .ref('users/pfpics')
+        .child("$uid${path.extension(file.path)}");
+
+    UploadTask uploadTask = fileReference.putFile(file);
+    print("upload task done: \n${fileReference.getDownloadURL()}");
+
+    return uploadTask.then((p) {
+      if (p.state == TaskState.success) {
+        print("profile pic uploaded");
+        return fileReference.getDownloadURL();
+      }
+      print("error while uploading profile pic");
+      return null;
+    });
+  } catch (e) {
+    print("Error uploading user profile pic: $e");
+    return null;
+  }
+}

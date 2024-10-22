@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:video_conference_app/constants/colors.dart';
+import 'package:video_conference_app/Models/user.dart';
+import 'package:video_conference_app/constants/assets_path.dart';
+import 'package:video_conference_app/constants/const_widgets.dart';
 import 'package:video_conference_app/constants/validations.dart';
 
 Widget customTextField(TextEditingController controller, String iconPath,
     {Widget? emailOrNumberWidget,
     String? text,
+    bool? onchanged,
     bool isPasswordField = false,
     bool viewPassword = false,
     bool isNameField = false,
@@ -85,6 +88,7 @@ Widget customTextField(TextEditingController controller, String iconPath,
             }
             return null;
           },
+          onChanged: (value) => onchanged,
         ),
       ),
     ],
@@ -198,5 +202,77 @@ PreferredSizeWidget customAppbar(
       ),
       const SizedBox(width: 20),
     ],
+  );
+}
+
+Widget userImageCircle(
+  UserData userData,
+  double radius, {
+  bool isLoading = false,
+  bool canEdit = false,
+  void Function()? onTap,
+}) {
+  return CircleAvatar(
+    backgroundColor: primaryColor2,
+    radius: radius,
+    child: Stack(
+      children: [
+        Align(
+          child: ClipOval(
+            child: Image.network(
+              height: radius * 1.85,
+              userData.pfpURL!.isEmpty
+                  ? networkPersonImage
+                  : userData.pfpURL ?? "NA",
+              fit: BoxFit.cover,
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress != null) {
+                  return const SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: CircularProgressIndicator.adaptive(),
+                  );
+                } else {
+                  return child;
+                }
+              },
+              errorBuilder: (context, error, stackTrace) {
+                return const Icon(
+                  Icons.person,
+                  color: Colors.white,
+                );
+              },
+            ),
+          ),
+        ),
+        (canEdit)
+            ? Align(
+                alignment: Alignment.bottomRight,
+                child: Opacity(
+                  opacity: .8,
+                  child: SizedBox(
+                    width: radius * 0.8,
+                    height: radius * 0.8,
+                    child: FloatingActionButton.small(
+                      onPressed: onTap,
+                      backgroundColor: primaryColor2,
+                      child: (isLoading)
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator.adaptive(),
+                            )
+                          : Image.asset(
+                              pencilIcon,
+                              color: Colors.white,
+                              height: radius * .5,
+                            ),
+                    ),
+                  ),
+                ),
+              )
+            : const SizedBox(),
+      ],
+    ),
   );
 }
