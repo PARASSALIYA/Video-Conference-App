@@ -9,7 +9,7 @@ class UserData {
   List<String>? groupIds;
   int? noOfChats;
   List<String>? chatIds;
-  DateTime? dateOfBirth;
+  // String? dateOfBirth;
   String? gender;
 
   UserData({
@@ -23,7 +23,7 @@ class UserData {
     this.groupIds = const [],
     this.noOfChats = 0,
     this.chatIds = const [],
-    this.dateOfBirth,
+    // this.dateOfBirth = "",
     this.gender = "",
   });
 
@@ -41,9 +41,7 @@ class UserData {
       noOfChats: json['noOfChats'] as int? ?? 0,
       // Fix here: Convert List<dynamic> to Set<String>
       chatIds:List<String>.from(json['chatIds'] ?? []),
-      dateOfBirth: json['dateOfBirth'] != null
-          ? DateTime.parse(json['dateOfBirth'])
-          : null,
+      // dateOfBirth: json['dateOfBirth'] as String? ?? "",
       gender: json['gender'] as String? ?? "",
     );
   }
@@ -60,7 +58,7 @@ class UserData {
       'groupIds': groupIds,
       'noOfChats': noOfChats,
       'chatIds': chatIds,
-      'dateOfBirth': dateOfBirth?.toIso8601String(),
+      // 'dateOfBirth': dateOfBirth,
       'gender': gender,
     };
   }

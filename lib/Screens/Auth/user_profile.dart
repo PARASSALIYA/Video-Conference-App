@@ -3,14 +3,12 @@ import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get_it/get_it.dart';
 import 'package:video_conference_app/Models/user.dart';
 import 'package:video_conference_app/Models/user_provider.dart';
 import 'package:video_conference_app/Widgets/appbar.dart';
 import 'package:video_conference_app/Widgets/auth_widgets.dart';
 import 'package:video_conference_app/constants/assets_path.dart';
 import 'package:video_conference_app/constants/const_widgets.dart';
-import 'package:video_conference_app/services/auth_services.dart';
 import 'package:video_conference_app/services/database_services.dart';
 
 class UserProfile extends ConsumerStatefulWidget {
@@ -21,16 +19,11 @@ class UserProfile extends ConsumerStatefulWidget {
 }
 
 class _UserProfileState extends ConsumerState<UserProfile> {
-  late AuthService _authServices;
   File? selectedImage;
   bool uploadLoader = false;
 
   @override
   void initState() {
-    _authServices = GetIt.instance.get<AuthService>();
-    ref
-        .read(userDataNotifierProvider.notifier)
-        .fetchCurrentUserData(_authServices.user?.uid);
     super.initState();
   }
 
@@ -45,8 +38,6 @@ class _UserProfileState extends ConsumerState<UserProfile> {
   }
 
   Widget _body(UserData userData) {
-    final dob =
-        "${userData.dateOfBirth?.day ?? 0}/${userData.dateOfBirth?.month ?? 0}/${userData.dateOfBirth?.year ?? 0}";
     return Container(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -95,11 +86,6 @@ class _UserProfileState extends ConsumerState<UserProfile> {
                 ? "Add Phone Number"
                 : userData.phoneNumber ?? "Add Phone Number",
           ),
-          sbh15,
-          _dataField(
-            dobIcon,
-            (dob == "0/0/0") ? "Add Date of Birth" : dob,
-          ),
         ],
       ),
     );
@@ -145,13 +131,13 @@ class _UserProfileState extends ConsumerState<UserProfile> {
                   file: file,
                   uid: "${userData.uid}",
                 );
+                Navigator.pop(context);
                 ref
                     .watch(userDataNotifierProvider.notifier)
                     .updateCurrentUserData(profilePicUrl: newPfPic);
                 setState(() {
                   uploadLoader = false;
                 });
-                Navigator.pop(context);
               },
               child: const Text("Yes"),
             ),

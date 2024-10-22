@@ -53,6 +53,7 @@ class UserDataNotifier extends _$UserDataNotifier {
   }
 
   void updateCurrentUserData({
+    String? uid,
     String? name,
     String? email,
     bool? isOnline,
@@ -62,11 +63,11 @@ class UserDataNotifier extends _$UserDataNotifier {
     List<String>? groupIds,
     int? noOfChats,
     List<String>? chatIds,
-    DateTime? dateOfBirth,
+    // String? dateOfBirth,
     String? gender,
   }) async {
     try {
-      final userRef = userCollection.doc(state.uid);
+      final userRef = userCollection.doc(state.uid!.isEmpty ? uid : state.uid);
 
       Map<String, dynamic> updatedData = {
         'name': name ?? state.name,
@@ -78,12 +79,12 @@ class UserDataNotifier extends _$UserDataNotifier {
         'groupIds': groupIds ?? state.groupIds,
         'noOfChats': noOfChats ?? state.noOfChats,
         'chatIds': chatIds ?? state.chatIds,
-        'dateOfBirth': dateOfBirth ?? state.chatIds,
+        // 'dateOfBirth': dateOfBirth ?? state.chatIds,
         'gender': gender ?? state.gender,
       };
       await userRef.update(updatedData);
       state = UserData(
-        uid: state.uid,
+        uid: state.uid!.isEmpty ? uid : state.uid,
         name: name ?? state.name,
         email: email ?? state.email,
         isOnline: isOnline ?? state.isOnline,
@@ -93,7 +94,7 @@ class UserDataNotifier extends _$UserDataNotifier {
         groupIds: groupIds ?? state.groupIds,
         noOfChats: noOfChats ?? state.noOfChats,
         chatIds: chatIds ?? state.chatIds,
-        dateOfBirth: dateOfBirth ?? state.dateOfBirth,
+        // dateOfBirth: dateOfBirth ?? state.dateOfBirth,
         gender: gender ?? state.gender,
       );
       print('Document updated successfully!');

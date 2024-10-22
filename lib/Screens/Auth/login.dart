@@ -137,7 +137,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               passwordOrOtp,
               text: (isSelectedEmail) ? "Password" : "OTP",
               (isSelectedEmail) ? passwordIcon : numberDialpadIcon,
-              isPasswordField: !viewPassword,
+              viewPassword: !viewPassword,
+              isPasswordField:!isSelectedNumber,
               isOtpField: isSelectedNumber,
               hintText: (isSelectedEmail) ? "Enter password" : "Enter OTP",
               suffixIcon: IconButton(
