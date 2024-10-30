@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:video_conference_app/Agora/homepage.dart';
 import 'package:video_conference_app/services/auth_services.dart';
 import 'package:video_conference_app/utils/routes.dart';
 import 'package:video_conference_app/utils/utils.dart';
@@ -30,7 +31,8 @@ class MyApp extends ConsumerWidget {
         useMaterial3: true,
       ),
       routes: Routes.routes,
-      home: _authService.checkLogin(),
+      //home: _authService.checkLogin(),
+      home: const HomePage(),
     );
   }
 }

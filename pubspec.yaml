@@ -51,6 +51,9 @@ dependencies:
   shared_preferences: ^2.3.2
   auto_size_text: ^3.0.0
   firebase_storage: ^12.3.4
+  agora_uikit:
+  uuid: ^4.5.1
+  flutter_share: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -61,7 +64,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^4.0.0
+  flutter_lints: ^3.0.2
   riverpod_generator: ^2.4.3
   build_runner: ^2.4.12
 
